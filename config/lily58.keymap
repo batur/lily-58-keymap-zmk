@@ -24,24 +24,7 @@
         };
     };
 
-    combos {
-        compatible = "zmk,combos";
-
-        left_bracket {
-            bindings = <&kp LEFT_BRACKET>;
-            key-positions = <36 9>;
-            slow-release;
-            timeout-ms = <150>;
-            require-prior-idle-ms = <150>;
-        };
-
-        right_bracket {
-            bindings = <&kp RIGHT_BRACKET>;
-            key-positions = <36 10>;
-            timeout-ms = <150>;
-            require-prior-idle-ms = <150>;
-        };
-    };
+    combos { compatible = "zmk,combos"; };
 
     keymap {
         compatible = "zmk,keymap";
@@ -74,11 +57,11 @@
 
             display-name = "Lower";
             bindings = <
-&trans  &trans  &trans  &kp PLUS  &trans  &trans                    &trans  &trans          &trans          &kp LEFT_BRACE   &kp RIGHT_BRACE   &kp EQUAL
-&trans  &trans  &trans  &trans    &trans  &trans                    &trans  &trans          &kp UP_ARROW    &trans           &trans            &kp C_VOLUME_UP
-&trans  &trans  &trans  &trans    &trans  &trans                    &trans  &kp LEFT_ARROW  &kp DOWN_ARROW  &kp RIGHT_ARROW  &trans            &kp C_VOLUME_DOWN
-&trans  &trans  &trans  &trans    &trans  &trans  &trans    &trans  &trans  &trans          &trans          &trans           &kp C_PLAY_PAUSE  &kp K_MUTE
-                        &trans    &trans  &trans  &trans    &trans  &trans  &trans          &trans
+&trans  &trans  &trans  &kp PLUS  &trans  &trans                    &trans  &kp LEFT_BRACKET  &kp LEFT_BRACKET  &kp LEFT_BRACE   &kp RIGHT_BRACE   &kp EQUAL
+&trans  &trans  &trans  &trans    &trans  &trans                    &trans  &trans            &kp UP_ARROW      &trans           &trans            &kp C_VOLUME_UP
+&trans  &trans  &trans  &trans    &trans  &trans                    &trans  &kp LEFT_ARROW    &kp DOWN_ARROW    &kp RIGHT_ARROW  &trans            &kp C_VOLUME_DOWN
+&trans  &trans  &trans  &trans    &trans  &trans  &trans    &trans  &trans  &trans            &trans            &trans           &kp C_PLAY_PAUSE  &kp K_MUTE
+                        &trans    &trans  &trans  &trans    &trans  &trans  &trans            &trans
             >;
         };
     };
