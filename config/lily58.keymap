@@ -126,20 +126,21 @@
 
         /*
          * __  __    __    __    __  __           __     __    __     __    __   __
-         * __  PREV  PLAY  NEXT  __  __           LINE<  UP    LINE>  PGUP  __   __
-         * __  MUTE  VOL-  VOL+  __  __           LEFT   DOWN  RIGHT  PGDN  DEL  __
-         * __  BRI-  BRI+  __    __  __  __   __  WORD<  WORD> __     __    __   __
+         * __  PREV  PLAY  NEXT  __  __           LINE<  UP    LINE>  SPC<  SPC> __
+         * __  MUTE  VOL-  VOL+  __  __           LEFT   DOWN  RIGHT  PGUP  DEL  __
+         * __  BRI-  BRI+  __    __  __  __   __  WORD<  WORD> __     PGDN  __   __
          *              __  __  LOWER  __       __  [held]  __  __
          *
-         * LINE< / LINE> are Cmd+Left / Cmd+Right, WORD< / WORD> are Opt+Left / Opt+Right.
+         * LINE< / LINE> are Cmd+Left / Cmd+Right, WORD< / WORD> are Opt+Left / Opt+Right,
+         * SPC< / SPC> are Ctrl+Left / Ctrl+Right (switch macOS Space).
          */
         raise_layer {
             display-name = "Nav";
             bindings = <
     &trans  &trans         &trans         &trans         &trans  &trans                    &trans         &trans          &trans          &trans      &trans   &trans
-    &trans  &kp C_PREV     &kp C_PP       &kp C_NEXT     &trans  &trans                    &kp LG(LEFT)   &kp UP          &kp LG(RIGHT)   &kp PG_UP   &trans   &trans
-    &trans  &kp C_MUTE     &kp C_VOL_DN   &kp C_VOL_UP   &trans  &trans                    &kp LEFT       &kp DOWN        &kp RIGHT       &kp PG_DN   &kp DEL  &trans
-    &trans  &kp C_BRI_DN   &kp C_BRI_UP   &trans         &trans  &trans  &trans    &trans  &kp LA(LEFT)   &kp LA(RIGHT)   &trans          &trans      &trans   &trans
+    &trans  &kp C_PREV     &kp C_PP       &kp C_NEXT     &trans  &trans                    &kp LG(LEFT)   &kp UP          &kp LG(RIGHT)   &kp LC(LEFT)  &kp LC(RIGHT)  &trans
+    &trans  &kp C_MUTE     &kp C_VOL_DN   &kp C_VOL_UP   &trans  &trans                    &kp LEFT       &kp DOWN        &kp RIGHT       &kp PG_UP     &kp DEL        &trans
+    &trans  &kp C_BRI_DN   &kp C_BRI_UP   &trans         &trans  &trans  &trans    &trans  &kp LA(LEFT)   &kp LA(RIGHT)   &trans          &kp PG_DN     &trans         &trans
                                           &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans
             >;
         };
