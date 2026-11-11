@@ -1,65 +1,149 @@
 /*
- * Copyright (c) 2020 The ZMK Contributors
+ * Lily58 keymap — macOS, classic modifier placement.
  *
- * SPDX-License-Identifier: MIT
+ * Layers
+ *   BASE    QWERTY
+ *   LOWER   hold left inner thumb   symbols (left hand) + numpad (right hand)
+ *   RAISE   hold right inner thumb  navigation (right hand) + media (left hand)
+ *   ADJUST  hold LOWER + RAISE      F keys, Bluetooth, bootloader
+ *   MOUSE   hold right outer thumb  pointer (left hand) + scroll (right hand)
+ *
+ * Combo: both shifts together = caps word.
+ *
+ * Key positions
+ *    0  1  2  3  4  5                6  7  8  9 10 11
+ *   12 13 14 15 16 17               18 19 20 21 22 23
+ *   24 25 26 27 28 29               30 31 32 33 34 35
+ *   36 37 38 39 40 41 42         43 44 45 46 47 48 49
+ *               50 51 52 53   54 55 56 57
  */
 
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/outputs.h>
+#include <dt-bindings/zmk/pointing.h>
+
+#define BASE   0
+#define LOWER  1
+#define RAISE  2
+#define ADJUST 3
+#define MOUSE  4
 
 / {
-    behaviors {
-        layer_layer_behavior: layer_layer_behavior {
-            compatible = "zmk,behavior-tap-dance";
-            label = "LAYER_LAYER_BEHAVIOR";
-            #binding-cells = <0>;
-            bindings = <&mo 1>, <&tog 1>;
-        };
+    combos {
+        compatible = "zmk,combos";
 
-        shft_word: shft_word {
-            compatible = "zmk,behavior-tap-dance";
-            label = "SHFT_WORD";
-            #binding-cells = <0>;
-            bindings = <&kp LSHFT>, <&caps_word>;
+        caps_word_combo {
+            timeout-ms = <50>;
+            key-positions = <24 49>;
+            layers = <BASE>;
+            bindings = <&caps_word>;
         };
     };
 
-    combos { compatible = "zmk,combos"; };
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+
+        adjust {
+            if-layers = <LOWER RAISE>;
+            then-layer = <ADJUST>;
+        };
+    };
 
     keymap {
         compatible = "zmk,keymap";
 
-        default_layer {
+        /*
+         * ESC   1  2  3  4  5                 6  7  8  9  0  `
+         * TAB   Q  W  E  R  T                 Y  U  I  O  P  -
+         * SHIFT A  S  D  F  G                 H  J  K  L  ;  '
+         * CTRL  Z  X  C  V  B  [           ]  N  M  ,  .  /  SHIFT
+         *            ALT CMD LOWER SPACE   ENTER RAISE BSPC MOUSE
+         */
+        base_layer {
             display-name = "Base";
             bindings = <
-    &kp ESC           &kp N1  &kp N2  &kp N3  &kp N4  &kp N5                             &kp N6   &kp N7    &kp N8     &kp N9   &kp N0    &kp GRAVE
-    &kp TAB           &kp Q   &kp W   &kp E   &kp R   &kp T                              &kp Y    &kp U     &kp I      &kp O    &kp P     &kp MINUS
-    &shft_word        &kp A   &kp S   &kp D   &kp F   &kp G                              &kp H    &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
-    &kp LCTRL         &kp Z   &kp X   &kp C   &kp V   &kp B     &kp LBKT   &kp RBKT     &kp N    &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
-                                    &kp LALT &kp LGUI &mo 1    &kp SPACE  &kp RET      &mo 2    &kp BSPC  &kp RGUI
+    &kp ESC    &kp N1  &kp N2  &kp N3  &kp N4  &kp N5                          &kp N6  &kp N7  &kp N8     &kp N9   &kp N0    &kp GRAVE
+    &kp TAB    &kp Q   &kp W   &kp E   &kp R   &kp T                           &kp Y   &kp U   &kp I      &kp O    &kp P     &kp MINUS
+    &kp LSHFT  &kp A   &kp S   &kp D   &kp F   &kp G                           &kp H   &kp J   &kp K      &kp L    &kp SEMI  &kp SQT
+    &kp LCTRL  &kp Z   &kp X   &kp C   &kp V   &kp B   &kp LBKT      &kp RBKT  &kp N   &kp M   &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
+                         &kp LALT  &kp LGUI  &mo LOWER  &kp SPACE      &kp RET  &mo RAISE  &kp BSPC  &mo MOUSE
             >;
         };
 
-        symbols_layer {
+        /*
+         * `   !  @  #  $  %                 ^  &  *  (  )  ~
+         * ~   |  \  {  }  &                 *  7  8  9  +  -
+         * __  <  >  (  )  =                 /  4  5  6  =  '
+         * __  !  _  -  +  *  __         __  0  1  2  3  .  __
+         *            __  __  [held]  __   __  RAISE  DEL  __
+         */
+        lower_layer {
             display-name = "Symbols";
             bindings = <
-    &kp GRAVE  &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT                     &kp CARET   &kp AMPS   &kp STAR   &kp LPAR   &kp RPAR   &kp TILDE
-    &kp LBKT   &kp RBKT   &kp LBRC   &kp RBRC   &kp EQUAL  &kp PLUS                      &kp MINUS   &kp UNDER  &kp FSLH   &kp BSLH   &kp PIPE   &kp COLON
-    &trans     &kp LT     &kp GT     &kp LPAR   &kp RPAR   &kp SQT                       &kp QUESTION &kp SEMI  &kp COMMA  &kp DOT    &trans     &trans
-    &trans     &trans     &trans     &trans     &trans     &trans     &trans   &trans    &trans      &trans     &trans     &trans     &trans     &trans
-                                    &trans    &trans     &trans     &trans    &trans    &trans      &trans     &trans
+    &kp GRAVE  &kp EXCL  &kp AT     &kp HASH   &kp DLLR  &kp PRCNT                   &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR   &kp TILDE
+    &kp TILDE  &kp PIPE  &kp BSLH   &kp LBRC   &kp RBRC  &kp AMPS                    &kp STAR   &kp N7    &kp N8    &kp N9    &kp PLUS   &trans
+    &trans     &kp LT    &kp GT     &kp LPAR   &kp RPAR  &kp EQUAL                   &kp FSLH   &kp N4    &kp N5    &kp N6    &kp EQUAL  &trans
+    &trans     &kp EXCL  &kp UNDER  &kp MINUS  &kp PLUS  &kp STAR  &trans    &trans  &kp N0     &kp N1    &kp N2    &kp N3    &kp DOT    &trans
+                                    &trans  &trans  &trans  &trans    &trans  &trans  &kp DEL  &trans
             >;
         };
 
-        nav_layer {
+        /*
+         * __  __    __    __    __  __           __     __    __     __    __   __
+         * __  PREV  PLAY  NEXT  __  __           LINE<  UP    LINE>  PGUP  __   __
+         * __  MUTE  VOL-  VOL+  __  __           LEFT   DOWN  RIGHT  PGDN  DEL  __
+         * __  BRI-  BRI+  __    __  __  __   __  WORD<  WORD> __     __    __   __
+         *              __  __  LOWER  __       __  [held]  __  __
+         *
+         * LINE< / LINE> are Cmd+Left / Cmd+Right, WORD< / WORD> are Opt+Left / Opt+Right.
+         */
+        raise_layer {
             display-name = "Nav";
             bindings = <
-    &trans  &trans  &trans  &trans  &trans  &trans                                           &trans          &trans          &trans          &trans          &trans             &trans
-    &trans  &trans  &trans  &trans  &trans  &trans                                           &kp HOME        &kp UP_ARROW    &kp END         &kp LC(LEFT)     &kp LC(RIGHT)      &trans
-    &trans  &trans  &trans  &trans  &trans  &trans                                           &kp LEFT_ARROW  &kp DOWN_ARROW  &kp RIGHT_ARROW &kp C_PLAY_PAUSE &kp C_VOLUME_UP    &kp K_MUTE
-    &trans  &trans  &trans  &trans  &trans  &trans    &bt BT_CLR_ALL  &trans                 &trans          &trans          &trans          &trans           &kp C_VOLUME_DOWN  &trans
-                                &trans   &trans     &trans          &trans                  &trans          &trans          &trans          &trans
+    &trans  &trans         &trans         &trans         &trans  &trans                    &trans         &trans          &trans          &trans      &trans   &trans
+    &trans  &kp C_PREV     &kp C_PP       &kp C_NEXT     &trans  &trans                    &kp LG(LEFT)   &kp UP          &kp LG(RIGHT)   &kp PG_UP   &trans   &trans
+    &trans  &kp C_MUTE     &kp C_VOL_DN   &kp C_VOL_UP   &trans  &trans                    &kp LEFT       &kp DOWN        &kp RIGHT       &kp PG_DN   &kp DEL  &trans
+    &trans  &kp C_BRI_DN   &kp C_BRI_UP   &trans         &trans  &trans  &trans    &trans  &kp LA(LEFT)   &kp LA(RIGHT)   &trans          &trans      &trans   &trans
+                                          &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans
+            >;
+        };
+
+        /*
+         * F1      F2   F3   F4   F5   F6            F7  F8  F9  F10  F11  F12
+         * BTCLR   BT0  BT1  BT2  BT3  BT4           __  __  __  __   __   __
+         * CLRALL  USB/BLE  __  __  __  __           __  __  __  __   __   __
+         * BOOT    RESET __  __  __  __  __      __  __  __  __  __   RESET BOOT
+         *
+         * BOOT / RESET act on the half they are pressed on.
+         */
+        adjust_layer {
+            display-name = "Adjust";
+            bindings = <
+    &kp F1          &kp F2        &kp F3        &kp F4        &kp F5        &kp F6                          &kp F7  &kp F8  &kp F9  &kp F10  &kp F11     &kp F12
+    &bt BT_CLR      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4                    &trans  &trans  &trans  &trans   &trans      &trans
+    &bt BT_CLR_ALL  &out OUT_TOG  &trans        &trans        &trans        &trans                          &trans  &trans  &trans  &trans   &trans      &trans
+    &bootloader     &sys_reset    &trans        &trans        &trans        &trans        &trans    &trans  &trans  &trans  &trans  &trans   &sys_reset  &bootloader
+                                                &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans
+            >;
+        };
+
+        /*
+         * __  __  __    __    __     __            __      __      __      __  __  __
+         * __  __  __    UP    __     __            __      SCR_UP  __      __  __  __
+         * __  __  LEFT  DOWN  RIGHT  __            SCR_L   SCR_DN  SCR_R   __  __  __
+         * __  __  __    __    __     __  __    __  __      __      __      __  __  __
+         *        __  MIDDLE  RIGHT  LEFT click       __  __  __  [held]
+         */
+        mouse_layer {
+            display-name = "Mouse";
+            bindings = <
+    &trans  &trans  &trans           &trans           &trans            &trans                    &trans            &trans            &trans             &trans  &trans  &trans
+    &trans  &trans  &trans           &mmv MOVE_UP     &trans            &trans                    &trans            &msc SCRL_UP      &trans             &trans  &trans  &trans
+    &trans  &trans  &mmv MOVE_LEFT   &mmv MOVE_DOWN   &mmv MOVE_RIGHT   &trans                    &msc SCRL_LEFT    &msc SCRL_DOWN    &msc SCRL_RIGHT    &trans  &trans  &trans
+    &trans  &trans  &trans           &trans           &trans            &trans  &trans    &trans  &trans            &trans            &trans             &trans  &trans  &trans
+                                     &trans  &mkp MCLK  &mkp RCLK  &mkp LCLK    &trans  &trans  &trans  &trans
             >;
         };
     };
