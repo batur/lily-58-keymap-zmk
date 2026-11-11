@@ -168,7 +168,7 @@
          * __  __    UP    __     __  __            __      SCR_UP  __      __  __  __
          * __  LEFT  DOWN  RIGHT  __  __            SCR_L   SCR_DN  SCR_R   __  __  __
          * __  __  __    __    __     __  __    __  __      __      __      __  __  __
-         *        __  MIDDLE  RIGHT  LEFT click       __  __  __  [held]
+         *              __  __  __  LEFT click    RIGHT click  __  __  [held]
          */
         mouse_layer {
             display-name = "Mouse";
@@ -177,7 +177,7 @@
     &trans  &trans           &mmv MOVE_UP     &trans            &trans  &trans                    &trans            &msc SCRL_UP      &trans             &trans  &trans  &trans
     &trans  &mmv MOVE_LEFT   &mmv MOVE_DOWN   &mmv MOVE_RIGHT   &trans  &trans                    &msc SCRL_LEFT    &msc SCRL_DOWN    &msc SCRL_RIGHT    &trans  &trans  &trans
     &trans  &trans  &trans           &trans           &trans            &trans  &trans    &trans  &trans            &trans            &trans             &trans  &trans  &trans
-                                     &trans  &mkp MCLK  &mkp RCLK  &mkp LCLK    &trans  &trans  &trans  &trans
+                                     &trans  &trans  &trans  &mkp LCLK    &mkp RCLK  &trans  &trans  &trans
             >;
         };
     };
