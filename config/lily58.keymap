@@ -6,7 +6,7 @@
  *   LOWER   hold left inner thumb   symbols (left hand) + numpad (right hand)
  *   RAISE   hold right inner thumb  navigation (right hand) + media (left hand)
  *   ADJUST  hold LOWER + RAISE      F keys, Bluetooth, bootloader
- *   MOUSE   hold right outer thumb  pointer (left hand) + scroll (right hand)
+ *   MOUSE   hold right outer thumb  pointer (WASD) + scroll (right hand)
  *
  * Combo: both shifts together = caps word.
  *
@@ -166,8 +166,8 @@
 
         /*
          * __  __  __    __    __     __            __      __      __      __  __  __
-         * __  __  __    UP    __     __            __      SCR_UP  __      __  __  __
-         * __  __  LEFT  DOWN  RIGHT  __            SCR_L   SCR_DN  SCR_R   __  __  __
+         * __  __    UP    __     __  __            __      SCR_UP  __      __  __  __
+         * __  LEFT  DOWN  RIGHT  __  __            SCR_L   SCR_DN  SCR_R   __  __  __
          * __  __  __    __    __     __  __    __  __      __      __      __  __  __
          *        __  MIDDLE  RIGHT  LEFT click       __  __  __  [held]
          */
@@ -175,8 +175,8 @@
             display-name = "Mouse";
             bindings = <
     &trans  &trans  &trans           &trans           &trans            &trans                    &trans            &trans            &trans             &trans  &trans  &trans
-    &trans  &trans  &trans           &mmv MOVE_UP     &trans            &trans                    &trans            &msc SCRL_UP      &trans             &trans  &trans  &trans
-    &trans  &trans  &mmv MOVE_LEFT   &mmv MOVE_DOWN   &mmv MOVE_RIGHT   &trans                    &msc SCRL_LEFT    &msc SCRL_DOWN    &msc SCRL_RIGHT    &trans  &trans  &trans
+    &trans  &trans           &mmv MOVE_UP     &trans            &trans  &trans                    &trans            &msc SCRL_UP      &trans             &trans  &trans  &trans
+    &trans  &mmv MOVE_LEFT   &mmv MOVE_DOWN   &mmv MOVE_RIGHT   &trans  &trans                    &msc SCRL_LEFT    &msc SCRL_DOWN    &msc SCRL_RIGHT    &trans  &trans  &trans
     &trans  &trans  &trans           &trans           &trans            &trans  &trans    &trans  &trans            &trans            &trans             &trans  &trans  &trans
                                      &trans  &mkp MCLK  &mkp RCLK  &mkp LCLK    &trans  &trans  &trans  &trans
             >;
