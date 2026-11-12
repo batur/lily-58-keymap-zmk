@@ -207,6 +207,46 @@ M.tap = hs.eventtap.new({ types.keyDown, types.keyUp }, function(event)
 end)
 M.tap:start()
 
+-- Battery levels, written every 15 minutes by the LaunchAgent that
+-- battery/install.sh sets up. First value is the left half, second the right.
+local batteryPath = os.getenv("HOME") .. "/.cache/lily58-battery.json"
+local batteryMaxAge = 3600
+
+local function batteryLevels()
+    if not hs.fs.attributes(batteryPath) then return nil end
+    local data = hs.json.read(batteryPath)
+    if type(data) ~= "table" or type(data.levels) ~= "table" or #data.levels == 0 then return nil end
+    if os.time() - (data.time or 0) > batteryMaxAge then return nil end
+    return data.levels
+end
+
+M.menu = hs.menubar.new()
+
+local function updateBattery()
+    local levels = batteryLevels()
+    local short, long = "–", nil
+    if levels then
+        local names = { "Sol", "Sağ" }
+        local shortParts, longParts = {}, {}
+        for i, level in ipairs(levels) do
+            shortParts[#shortParts + 1] = level .. "%"
+            longParts[#longParts + 1] = (names[i] or "?") .. " %" .. level
+        end
+        short = table.concat(shortParts, " · ")
+        long = table.concat(longParts, "   ")
+    end
+    if M.menu then
+        M.menu:setTitle("⌨ " .. short)
+        M.menu:setTooltip(long and ("Lily58 pil: " .. long) or "Lily58 pil seviyesi bilinmiyor")
+    end
+    for name, canvas in pairs(canvases) do
+        canvas[2].text = layers[name].title .. (long and ("        " .. long) or "")
+    end
+end
+
+M.batteryTimer = hs.timer.doEvery(60, updateBattery)
+updateBattery()
+
 -- A key-up can be lost across sleep or a keyboard disconnect; start clean on wake.
 M.wakeWatcher = hs.caffeinate.watcher.new(function(event)
     if event == hs.caffeinate.watcher.systemDidWake then
