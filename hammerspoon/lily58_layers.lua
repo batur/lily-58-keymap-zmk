@@ -195,8 +195,48 @@ local signals = {
 
 local types = hs.eventtap.event.types
 
+-- Automatic input source: ABC while typing on the Lily58, Turkish on any other
+-- keyboard (the MacBook's own). macOS tags every key event with the type of the
+-- keyboard it came from. The Lily58's type is learned from its layer signal keys,
+-- which no other keyboard sends, and remembered across reloads.
+local function findLayout(patterns)
+    for _, pattern in ipairs(patterns) do
+        for _, layout in ipairs(hs.keycodes.layouts()) do
+            if layout:find(pattern) then return layout end
+        end
+    end
+    return nil
+end
+
+local lilyLayout = findLayout({ "^ABC$", "^U%.S%.$", "^ABC", "English" })
+local otherLayout = findLayout({ "Turkish", "Türk", "Turk" })
+local keyboardTypeProperty = hs.eventtap.event.properties.keyboardEventKeyboardType
+local lilyKeyboardType = hs.settings.get("lily58.keyboardType")
+local lastWasLily = nil
+
+if not (lilyLayout and otherLayout) then
+    print("lily58: automatic layout switching is off; need both an ABC and a Turkish input source")
+end
+
+local function trackKeyboard(event, isSignal)
+    if not (lilyLayout and otherLayout) then return end
+    local keyboardType = event:getProperty(keyboardTypeProperty)
+    if isSignal and keyboardType ~= lilyKeyboardType then
+        lilyKeyboardType = keyboardType
+        hs.settings.set("lily58.keyboardType", keyboardType)
+    end
+    if lilyKeyboardType == nil then return end
+    local isLily = keyboardType == lilyKeyboardType
+    if isLily ~= lastWasLily then
+        lastWasLily = isLily
+        local wanted = isLily and lilyLayout or otherLayout
+        if hs.keycodes.currentLayout() ~= wanted then hs.keycodes.setLayout(wanted) end
+    end
+end
+
 M.tap = hs.eventtap.new({ types.keyDown, types.keyUp }, function(event)
     local name = signals[event:getKeyCode()]
+    if event:getType() == types.keyDown then trackKeyboard(event, name ~= nil) end
     if not name then return false end
     local down = event:getType() == types.keyDown
     if held[name] ~= down then
