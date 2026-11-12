@@ -220,7 +220,40 @@ local function batteryLevels()
     return data.levels
 end
 
+-- Small keyboard glyph for the menu bar, drawn as a template image so macOS
+-- tints it for light and dark menu bars.
+local function keyboardIcon()
+    local ink = { white = 0, alpha = 1 }
+    local elements = {
+        {
+            type = "rectangle",
+            action = "stroke",
+            strokeWidth = 1.3,
+            strokeColor = ink,
+            roundedRectRadii = { xRadius = 3, yRadius = 3 },
+            frame = { x = 1, y = 2, w = 20, h = 12 },
+        },
+        { type = "rectangle", action = "fill", fillColor = ink, frame = { x = 7, y = 10.5, w = 8, h = 1.5 } },
+    }
+    for row = 0, 1 do
+        for col = 0, 4 do
+            elements[#elements + 1] = {
+                type = "rectangle",
+                action = "fill",
+                fillColor = ink,
+                frame = { x = 4 + col * 3, y = 4.5 + row * 3, w = 2, h = 2 },
+            }
+        end
+    end
+    local canvas = hs.canvas.new({ x = 0, y = 0, w = 22, h = 16 })
+    canvas:replaceElements(elements)
+    local image = canvas:imageFromCanvas()
+    canvas:delete()
+    return image
+end
+
 M.menu = hs.menubar.new()
+if M.menu then M.menu:setIcon(keyboardIcon(), true) end
 
 local function updateBattery()
     local levels = batteryLevels()
@@ -236,7 +269,7 @@ local function updateBattery()
         long = table.concat(longParts, "   ")
     end
     if M.menu then
-        M.menu:setTitle("⌨ " .. short)
+        M.menu:setTitle(" " .. short)
         M.menu:setTooltip(long and ("Lily58 pil: " .. long) or "Lily58 pil seviyesi bilinmiyor")
     end
     for name, canvas in pairs(canvases) do
