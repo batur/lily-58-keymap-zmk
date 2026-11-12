@@ -252,6 +252,28 @@ M.tap:start()
 local batteryPath = os.getenv("HOME") .. "/.cache/lily58-battery.json"
 local batteryMaxAge = 3600
 
+-- Notify once when a half drops below batteryLow; re-arm after it has been
+-- charged back above batteryRearm.
+M.batteryLow = 20
+M.batteryRearm = 30
+local halfNames = { "Sol", "Sağ" }
+local lowNotified = {}
+
+local function checkLowBattery(levels)
+    for i, level in ipairs(levels) do
+        if level < M.batteryLow and not lowNotified[i] then
+            lowNotified[i] = true
+            hs.notify.new({
+                title = "Lily58 pili azaldı",
+                informativeText = (halfNames[i] or "?") .. " yarı %" .. level .. " — şarja tak.",
+                withdrawAfter = 0,
+            }):send()
+        elseif level >= M.batteryRearm then
+            lowNotified[i] = false
+        end
+    end
+end
+
 local function batteryLevels()
     if not hs.fs.attributes(batteryPath) then return nil end
     local data = hs.json.read(batteryPath)
@@ -299,7 +321,8 @@ local function updateBattery()
     local levels = batteryLevels()
     local short, long = "–", nil
     if levels then
-        local names = { "Sol", "Sağ" }
+        checkLowBattery(levels)
+        local names = halfNames
         local shortParts, longParts = {}, {}
         for i, level in ipairs(levels) do
             shortParts[#shortParts + 1] = level .. "%"
