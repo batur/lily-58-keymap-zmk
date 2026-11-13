@@ -227,6 +227,7 @@ local function trackKeyboard(event, isSignal)
     end
     if lilyKeyboardType == nil then return end
     local isLily = keyboardType == lilyKeyboardType
+    if isLily and M.batteryStale and M.requestBatteryRefresh then M.requestBatteryRefresh() end
     if isLily ~= lastWasLily then
         lastWasLily = isLily
         local wanted = isLily and lilyLayout or otherLayout
@@ -319,6 +320,7 @@ if M.menu then M.menu:setIcon(keyboardIcon(), true) end
 
 local function updateBattery()
     local levels = batteryLevels()
+    M.batteryStale = levels == nil
     local short, long = "–", nil
     if levels then
         checkLowBattery(levels)
@@ -342,6 +344,23 @@ end
 
 M.batteryTimer = hs.timer.doEvery(60, updateBattery)
 updateBattery()
+
+-- The LaunchAgent only reads every 15 minutes, so after the keyboard has been
+-- away (overnight, Mac asleep) the levels would stay unknown for a while. When
+-- the Lily58 is typing and the data is stale, ask launchd to run the reader now.
+-- Hammerspoon cannot run the reader itself: macOS would deny it Bluetooth access.
+local batteryAgent = "gui/" .. hs.execute("/usr/bin/id -u"):gsub("%s+", "") .. "/io.lily58.battery"
+local lastRefreshRequest = 0
+
+function M.requestBatteryRefresh()
+    local now = os.time()
+    if now - lastRefreshRequest < 120 then return end
+    lastRefreshRequest = now
+    M.refreshTask = hs.task.new("/bin/launchctl", function()
+        M.refreshRead = hs.timer.doAfter(8, updateBattery)
+    end, { "kickstart", batteryAgent })
+    M.refreshTask:start()
+end
 
 -- A key-up can be lost across sleep or a keyboard disconnect; start clean on wake.
 M.wakeWatcher = hs.caffeinate.watcher.new(function(event)
