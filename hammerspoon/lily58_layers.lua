@@ -262,7 +262,9 @@ local lowNotified = {}
 
 local function checkLowBattery(levels)
     for i, level in ipairs(levels) do
-        if level < M.batteryLow and not lowNotified[i] then
+        if level <= 0 then
+            -- 0 means "not reported", not "empty"; see updateBattery.
+        elseif level < M.batteryLow and not lowNotified[i] then
             lowNotified[i] = true
             hs.notify.new({
                 title = "Lily58 pili azaldı",
@@ -327,8 +329,20 @@ local function updateBattery()
         local names = halfNames
         local shortParts, longParts = {}, {}
         for i, level in ipairs(levels) do
-            shortParts[#shortParts + 1] = level .. "%"
-            longParts[#longParts + 1] = (names[i] or "?") .. " %" .. level
+            -- A half that is typing cannot be at 0%. ZMK reports 0 for the right
+            -- half while it has no reading yet (after it reconnects or wakes), so
+            -- treat 0 as unknown and fall back to the last real value, marked "~".
+            local key = "lily58.battery." .. i
+            local shown
+            if level > 0 then
+                hs.settings.set(key, level)
+                shown = level .. "%"
+            else
+                local last = hs.settings.get(key)
+                shown = last and ("~" .. last .. "%") or "?"
+            end
+            shortParts[#shortParts + 1] = shown
+            longParts[#longParts + 1] = (names[i] or "?") .. " " .. shown
         end
         short = table.concat(shortParts, " · ")
         long = table.concat(longParts, "   ")
